@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Траєкторія руху (Canvas)</title>
+    <style>
+        body {
+            display: flex;
+        }
+        .controls {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            width: 200px;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+        .controls button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div class="controls">
+        <label>x0: <input type="number" id="x0" value="0"></label>
+        <label>y0: <input type="number" id="y0" value="0"></label>
+        <label>Кут (°): <input type="number" id="angle" value="45"></label>
+        <label>Швидкість: <input type="number" id="speed" value="50"></label>
+        <label>Прискорення: <input type="number" id="acceleration" value="9.8"></label>
+        <label>Колір: <input type="color" id="color" value="#ff0000"></label>
+        <button onclick="drawTrajectory()">Побудувати</button>
+        <button onclick="clearCanvas()">Очистити</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const gridSize = 50;
+        let trajectoryCount = 0;
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        function drawGrid() {
+            ctx.strokeStyle = '#66cc66';
+            ctx.lineWidth = 1;
+
+            for (let x = centerX % gridSize; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+
+            for (let y = centerY % gridSize; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawAxes() {
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+
+            // Ось X
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+
+            // Ось Y
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            // Додаємо стрілки
+            ctx.beginPath();
+            ctx.moveTo(width - 10, centerY - 5);
+            ctx.lineTo(width, centerY);
+            ctx.lineTo(width - 10, centerY + 5);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 5, 10);
+            ctx.lineTo(centerX, 0);
+            ctx.lineTo(centerX + 5, 10);
+            ctx.stroke();
+
+            // Додаємо числові мітки
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+
+            for (let x = gridSize; x < width / 2; x += gridSize) {
+                ctx.fillText(x, centerX + x, centerY + 15);
+                ctx.fillText(-x, centerX - x, centerY + 15);
+            }
+
+            ctx.textAlign = "right";
+            for (let y = gridSize; y < height / 2; y += gridSize) {
+                ctx.fillText(y, centerX - 5, centerY - y + 5);
+                ctx.fillText(-y, centerX - 5, centerY + y + 5);
+            }
+        }
+
+        function drawTrajectory() {
+            if (trajectoryCount >= 4) {
+                alert("Максимум 4 траєкторії!");
+                return;
+            }
+
+            const x0 = parseFloat(document.getElementById("x0").value);
+            const y0 = parseFloat(document.getElementById("y0").value);
+            const angle = parseFloat(document.getElementById("angle").value) * Math.PI / 180;
+            const speed = parseFloat(document.getElementById("speed").value);
+            const acceleration = parseFloat(document.getElementById("acceleration").value);
+            const color = document.getElementById("color").value;
+
+            const adjustedX0 = x0 + centerX;
+            const adjustedY0 = centerY - y0;
+
+            let t = 0, dt = 0.1;
+            let trajectory = [];
+
+            do {
+                let x = adjustedX0 + speed * Math.cos(angle) * t;
+                let y = adjustedY0 - (speed * Math.sin(angle) * t - 0.5 * acceleration * t * t);
+                trajectory.push([x, y]);
+                t += dt;
+            } while (trajectory[trajectory.length - 1][1] < height && trajectory[trajectory.length - 1][0] < width);
+
+            ctx.fillStyle = color;
+            trajectory.forEach(([x, y]) => {
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            trajectoryCount++;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            trajectoryCount = 0;
+            drawGrid();
+            drawAxes();
+        }
+
+        drawGrid();
+        drawAxes();
+    </script>
+</body>
+</html>

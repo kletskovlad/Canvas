@@ -73,19 +73,19 @@
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
 
-            // Ось X
+
             ctx.beginPath();
             ctx.moveTo(0, centerY);
             ctx.lineTo(width, centerY);
             ctx.stroke();
 
-            // Ось Y
+
             ctx.beginPath();
             ctx.moveTo(centerX, 0);
             ctx.lineTo(centerX, height);
             ctx.stroke();
 
-            // Додаємо стрілки
+
             ctx.beginPath();
             ctx.moveTo(width - 10, centerY - 5);
             ctx.lineTo(width, centerY);
@@ -98,7 +98,7 @@
             ctx.lineTo(centerX + 5, 10);
             ctx.stroke();
 
-            // Додаємо числові мітки
+
             ctx.font = "14px Arial";
             ctx.fillStyle = "black";
             ctx.textAlign = "center";
